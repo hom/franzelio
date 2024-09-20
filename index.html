@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Franzelio - Draw Lines, Make Music, Share Your Instrument</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!-- Meta tags for SEO -->
+  <meta name="description" content="Franzelio is an interactive musical instrument that lets you create music by drawing lines and sharing your creation with the world.">
+  <meta name="keywords" content="interactive music, digital instrument, create music, draw music, share music, Franzelio">
+  <meta name="author" content="Franz Enzenhofer">
+  <!-- Open Graph / Facebook meta tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Franzelio - Draw Lines, Make Music, Share Your Instrument">
+  <meta property="og:description" content="Franzelio is a visual musical instrument where you draw lines and make music. Share your creation with others!">
+  <meta property="og:url" content="https://franzelio.franzai.com/">
+  <meta property="og:image" content="https://franzelio.franzai.com/facebook_preview.png">
+  <!-- Meta tags for responsive design -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Top Controls Wrapper */
+    .top-controls-wrapper {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100; /* Ensure controls are above the canvas */
+    }
+    .top-controls-wrapper > .left-controls,
+    .top-controls-wrapper > .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Mode Select Dropdown */
+    .mode-select {
+      font-size: 16px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+
+    /* Sound Toggle */
+    .sound-toggle {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Drop Rate Slider */
+    .drop-rate-slider {
+      width: 150px;
+    }
+
+    /* Drop Rate Dropdown (hidden on desktop) */
+    .drop-rate-dropdown {
+      display: none;
+      padding: 5px;
+      font-size: 14px;
+    }
+
+    /* Share button styled as an emoji */
+    .share-button {
+      background-color: transparent; /* Remove background */
+      border: none; /* Remove default borders */
+      cursor: pointer; /* Keep pointer cursor */
+      font-size: 24px; /* Adjust size of emoji */
+      text-decoration: none; /* No underline */
+    }
+
+    /* Color buttons wrapper at the bottom center */
+    .color-buttons-wrapper {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 100; /* Increased z-index */
+      height: 50px; /* Fixed height for positioning */
+    }
+    .color-button {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Play overlay */
+    .play-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 200; /* Ensure overlay is above all other elements */
+    }
+    .play-button {
+      font-size: 100px;
+      cursor: pointer;
+    }
+
+    /* Share Overlay Styles */
+    .share-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 300; /* Ensure share overlay is above all */
+    }
+    .share-overlay div {
+      background-color: #ffffff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 80%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .share-overlay h2 {
+      margin-bottom: 20px;
+      color: #333333;
+    }
+    .share-overlay p {
+      margin-bottom: 30px;
+      color: #555555;
+    }
+    .share-overlay button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      margin-bottom: 10px; /* Add margin between buttons */
+    }
+    .share-overlay button:first-child {
+      background-color: #007aff;
+      color: #ffffff;
+    }
+    .share-overlay button:last-child {
+      background-color: #34C759;
+      color: #ffffff;
+    }
+
+    /* Mobile-specific layout */
+    @media (max-width: 768px) {
+      /* Hide slider and show dropdown on mobile */
+      .drop-rate-slider {
+        display: none;
+      }
+      .drop-rate-dropdown {
+        display: block;
+      }
+
+      /* Adjust top controls wrapper */
+      .top-controls-wrapper {
+        left: 5px;
+        right: 5px;
+      }
+      .top-controls-wrapper > .left-controls,
+      .top-controls-wrapper > .right-controls {
+        gap: 5px;
+      }
+      .drop-rate-dropdown {
+        font-size: 14px;
+        padding: 5px;
+      }
+      .mode-select {
+        font-size: 14px;
+        padding: 2px 5px;
+      }
+      .share-button {
+        font-size: 20px;
+      }
+    }
+    footer a {
+  color: black;
+  text-decoration: underline;
+}
+  </style>
+</head>
+<body>
+  <!-- The canvas and UI elements are dynamically added by the script -->
+
+  <!-- Include the main script -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>
